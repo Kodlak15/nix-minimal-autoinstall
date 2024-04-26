@@ -31,7 +31,7 @@ read -p "Username: " username
 configuration="
 {pkgs, ...}: {
   imports = [
-    ./hardware-configuration.nix
+    /etc/nixos/hardware-configuration.nix
   ];
 
   nix.settings.experimental-features = [\"nix-command\" \"flakes\"];
@@ -113,4 +113,3 @@ umount -R "$mountpoint"
 
 echo "NixOS was installed successfully!"
 echo "You may now reboot and begin building your system."
-echo "If building from a flake, be sure to move the generated hardware-configuration.nix file into the configuration."
