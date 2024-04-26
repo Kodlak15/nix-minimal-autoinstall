@@ -1,11 +1,14 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+# nix-shell -i bash --pure
+# nix-shell -p home-manager
 
 set -e
 
-# Make sure user running the program is root
+# Make sure user running the script is root
 if [[ ! "$EUID" -eq 0 ]]; then
 	echo "This must be run as root!"
 	echo "Run 'sudo -i' to switch to the root user."
+	exit 1
 fi
 
 # The name of the virtual disk to install on
@@ -20,6 +23,14 @@ mountpoint="/mnt/nixos"
 
 # Get the NixOS version
 version="$(nixos-version | cut -d '.' -f 1,2)"
+
+# Get a username from the user
+echo "Enter a username you would like added to the installation"
+echo "If building from a flake later, it would be best if the username exists in the flake as well"
+read -p "Username: " username
+
+# Set a directory path for the flake (relative to new root, not installation image root)
+flakedir="/home/$username/nix-config"
 
 # A minimal configuration to install the base system
 configuration='
@@ -39,7 +50,7 @@ configuration='
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
-  users.users.default = {
+	users.users.$username = {
     isNormalUser = true;
     extraGroups = ["wheel"];
     packages = with pkgs; [
@@ -105,5 +116,16 @@ nixos-install --root "$mountpoint"
 # Unmount all volumes
 umount -R "$mountpoint"
 
+# Build system from flake if desired
+read -p "Would you like to build the system with a flake? (y/n): " useflake
+if [[ $(echo "$useflake" | xargs) == "y" ]]; then
+	read -p "Enter the url for the repository containing the flake you would like to use: " url
+	nix flake clone $url --dest "$flakedir"
+	read -p "Enter the name of the flake you would like to use: " flake
+	chroot "$mountpoint"
+	nixos-rebuild-switch --flake "$flakedir#$flake"
+	home-manager switch --flake "$flakedir#$flake"
+	exit
+fi
+
 echo "NixOS was installed successfully!"
-echo "You may now reboot and start building your system."
