@@ -28,14 +28,14 @@ configuration='
     ./hardware-configuration.nix
   ];
 
-  # Use the systemd-boot EFI boot loader.
+  nix.settings.experimental-features = ["nix-command" "flakes"];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "default";
   networking.networkmanager.enable = true;
 
-  # Enable sound.
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
