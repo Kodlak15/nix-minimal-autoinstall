@@ -79,7 +79,7 @@ sgdisk -n 2::-0 --typecode=2:8300 "$disk"
 partprobe "$disk"
 
 # Create filesystems
-mkfs.fat -F 32 -n "EFIBOOT" "$boot"
+mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
 mkfs.btrfs -L "NIXOS" "$root" -f
 
 # Create subvolumes
@@ -113,3 +113,4 @@ umount -R "$mountpoint"
 
 echo "NixOS was installed successfully!"
 echo "You may now reboot and begin building your system."
+echo "If you are going to build using a flake, be sure to add the generated hardware-configuration.nix to the repository."
