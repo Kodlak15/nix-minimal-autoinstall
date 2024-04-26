@@ -33,7 +33,7 @@ read -p "Username: " username
 flakedir="/home/$username/nix-config"
 
 # A minimal configuration to install the base system
-configuration='
+configuration="
 {pkgs, ...}: {
   imports = [
     ./hardware-configuration.nix
@@ -75,7 +75,7 @@ configuration='
   # Do not change this value!
   system.stateVersion = "$version";
 }
-'
+"
 
 # Create the partitions
 sgdisk -g "$disk"
