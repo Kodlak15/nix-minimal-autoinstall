@@ -1,6 +1,4 @@
-#!/usr/bin/env nix-shell
-#! nix-shell -i bash
-#! nix-shell -p home-manager
+#!/usr/bin/env bash
 
 set -e
 
@@ -28,9 +26,6 @@ version="$(nixos-version | cut -d '.' -f 1,2)"
 echo "Enter a username you would like added to the installation"
 echo "If building from a flake later, it would be best if the username exists in the flake as well"
 read -p "Username: " username
-
-# Set a directory path for the flake (relative to new root, not installation image root)
-flakedir="/home/$username/nix-config"
 
 # A minimal configuration to install the base system
 configuration="
@@ -113,19 +108,9 @@ echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
 # Install the system
 nixos-install --root "$mountpoint"
 
-# Build system from flake if desired
-read -p "Would you like to build the system with a flake? (y/n): " useflake
-if [[ $(echo "$useflake" | xargs) == "y" ]]; then
-	read -p "Enter the url for the repository containing the flake you would like to use: " url
-	nix flake clone $url --dest "$flakedir" --experimental-features "nix-command flakes"
-	read -p "Enter the name of the flake you would like to use: " flake
-	chroot "$mountpoint"
-	nixos-rebuild-switch --flake "$flakedir#$flake" --experimental-features "nix-command flakes"
-	home-manager switch --flake "$flakedir#$flake" --experimental-features "nix-command flakes"
-	exit
-fi
-
 # Unmount all volumes
 umount -R "$mountpoint"
 
 echo "NixOS was installed successfully!"
+echo "You may now reboot and begin building your system."
+echo "If building from a flake, be sure to move the generated hardware-configuration.nix file into the configuration."
