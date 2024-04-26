@@ -109,7 +109,10 @@ echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
 nixos-install --root "$mountpoint"
 
 # Change the path to the hardware-configuration to an absolute path
-configuration="${configuration//.\/hardware-configuration.nix//etc/nixos/hardware-configuration.nix}"
+before="./hardware-configuration.nix"
+after="/etc/nixos/hardware-configuration.nix"
+configuration="${configuration/$before/$after}"
+echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
 
 # Unmount all volumes
 umount -R "$mountpoint"
