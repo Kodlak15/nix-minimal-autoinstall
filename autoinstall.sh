@@ -31,7 +31,7 @@ read -p "Username: " username
 configuration="
 {pkgs, ...}: {
   imports = [
-    /etc/nixos/hardware-configuration.nix
+    ./hardware-configuration.nix
   ];
 
   nix.settings.experimental-features = [\"nix-command\" \"flakes\"];
@@ -107,6 +107,9 @@ echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
 nixos-install --root "$mountpoint"
+
+# Change the path to the hardware-configuration to an absolute path
+configuration="${configuration//.\/hardware-configuration.nix//etc/nixos/hardware-configuration.nix}"
 
 # Unmount all volumes
 umount -R "$mountpoint"
