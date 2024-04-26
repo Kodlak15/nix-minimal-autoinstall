@@ -113,9 +113,6 @@ echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
 # Install the system
 nixos-install --root "$mountpoint"
 
-# Unmount all volumes
-umount -R "$mountpoint"
-
 # Build system from flake if desired
 read -p "Would you like to build the system with a flake? (y/n): " useflake
 if [[ $(echo "$useflake" | xargs) == "y" ]]; then
@@ -127,5 +124,8 @@ if [[ $(echo "$useflake" | xargs) == "y" ]]; then
 	home-manager switch --flake "$flakedir#$flake"
 	exit
 fi
+
+# Unmount all volumes
+umount -R "$mountpoint"
 
 echo "NixOS was installed successfully!"
