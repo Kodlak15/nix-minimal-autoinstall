@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#! nix-shell -i bash --pure
+#! nix-shell -i bash
 #! nix-shell -p home-manager
 
 set -e
