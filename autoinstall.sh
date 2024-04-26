@@ -117,11 +117,11 @@ nixos-install --root "$mountpoint"
 read -p "Would you like to build the system with a flake? (y/n): " useflake
 if [[ $(echo "$useflake" | xargs) == "y" ]]; then
 	read -p "Enter the url for the repository containing the flake you would like to use: " url
-	nix flake clone $url --dest "$flakedir"
+	nix flake clone $url --dest "$flakedir" --experimental-features "nix-command flakes"
 	read -p "Enter the name of the flake you would like to use: " flake
 	chroot "$mountpoint"
-	nixos-rebuild-switch --flake "$flakedir#$flake"
-	home-manager switch --flake "$flakedir#$flake"
+	nixos-rebuild-switch --flake "$flakedir#$flake" --experimental-features "nix-command flakes"
+	home-manager switch --flake "$flakedir#$flake" --experimental-features "nix-command flakes"
 	exit
 fi
 
