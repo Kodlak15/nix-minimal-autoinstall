@@ -1,6 +1,4 @@
-#!/usr/bin/env nix-shell
-#! nix-shell -i bash --pure
-#! nix-shell -I https://github.com/sgillespie/nixos-yubikey-luks/archive/master.tar.gz
+#!/usr/bin/env bash
 
 set -e
 
@@ -10,9 +8,6 @@ if [[ ! "$EUID" -eq 0 ]]; then
 	echo "Run 'sudo -i' to switch to the root user."
 	exit 1
 fi
-
-# Program the yubikey
-ykpersonalize -2 -ochal-resp -ochal-hmac
 
 # The name of the virtual disk to install on
 disk="/dev/vda"
@@ -24,46 +19,23 @@ root="/dev/vda2"
 # The mount point used for the installation
 mountpoint="/mnt/nixos"
 
+# Get the NixOS version
+version="$(nixos-version | cut -d '.' -f 1,2)"
+
+# Get a username from the user
+echo "Enter a username you would like added to the installation"
+echo "If building from a flake later, it would be best if the username exists in the flake as well"
+read -p "Username: " username
+
 # Create the partitions
 sgdisk -g "$disk"
 sgdisk -n 1::+256M --typecode=1:ef00 "$disk"
 sgdisk -n 2::-0 --typecode=2:8300 "$disk"
 partprobe "$disk"
 
-# Calculate LUKS passphrase
-SALT_LENGTH=16
-SALT="$(dd if=/dev/random bs=1 count=$SALT_LENGTH 2>/dev/null | rbtohex)"
-
-# Read 2FA password
-read -s USER_PASSPHRASE
-
 # Create filesystems
 mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
 mkfs.btrfs -L "NIXOS" "$root" -f
-
-# Calculate the initial challenge and response
-CHALLENGE="$(echo -n $SALT | openssl dgst -binary -sha512 | rbtohex)"
-RESPONSE=$(ykchalresp -2 -x $CHALLENGE 2>/dev/null)
-
-# Calculate the LUKS slot key
-KEY_LENGTH=512
-ITERATIONS=1000000
-LUKS_KEY="$(echo -n $USER_PASSPHRASE | pbkdf2-sha512 $(($KEY_LENGTH / 8)) $ITERATIONS $RESPONSE | rbtohex)"
-
-# Create the LUKS device
-CIPHER=aes-xts-plain64
-HASH=sha512
-echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" \ 
-  --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
-
-# Store the salt and iterations on the boot volume
-mount "$boot" /boot
-mkdir -p /boot/crypt-storage
-echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
-umount /boot
-
-# Open the LUKS device
-echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$root" nixos-crypt --key-file=-
 
 # Create subvolumes
 mount --mkdir "$root" "$mountpoint"
