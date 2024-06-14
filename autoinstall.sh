@@ -76,12 +76,14 @@ btrfs subvolume create "$mountpoint/@home"
 btrfs subvolume create "$mountpoint/@tmp"
 btrfs subvolume create "$mountpoint/@var"
 umount "$mountpoint"
+echo "Subvolumes created successfully"
 
 # Mount the subvolumes
 mount -o subvol="@" "$root" "$mountpoint"
 mount --mkdir -o subvol="@home" "$root" "$mountpoint/home"
 mount --mkdir -o subvol="@tmp" "$root" "$mountpoint/tmp"
 mount --mkdir -o subvol="@var" "$root" "$mountpoint/var"
+echo "Subvolumes mounted successfully"
 
 # Mount the boot partition
 mount --mkdir "$boot" "$mountpoint/boot"
