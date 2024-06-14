@@ -27,51 +27,6 @@ echo "Enter a username you would like added to the installation"
 echo "If building from a flake later, it would be best if the username exists in the flake as well"
 read -p "Username: " username
 
-# A minimal configuration to install the base system
-configuration="
-{pkgs, ...}: {
-  imports = [
-    ./hardware-configuration.nix
-  ];
-
-  nix.settings.experimental-features = [\"nix-command\" \"flakes\"];
-
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  networking.hostName = \"default\";
-  networking.networkmanager.enable = true;
-
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
-
-	users.users.$username = {
-    isNormalUser = true;
-    extraGroups = [\"wheel\"];
-    packages = with pkgs; [
-      gnumake
-      git
-      tree
-    ];
-  };
-
-  environment.systemPackages = with pkgs; [
-    neovim
-    wget
-  ];
-
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-  };
-
-  services.openssh.enable = true;
-
-  # Do not change this value!
-  system.stateVersion = \"$version\";
-}
-"
-
 # Create the partitions
 sgdisk -g "$disk"
 sgdisk -n 1::+256M --typecode=1:ef00 "$disk"
@@ -103,7 +58,7 @@ mount --mkdir "$boot" "$mountpoint/boot"
 nixos-generate-config --root "$mountpoint"
 
 # Replace the initial configuration with the minimal configuration
-echo "$configuration" > "$mountpoint/etc/nixos/configuration.nix"
+cat ./configuration.nix > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
 nixos-install --root "$mountpoint"
