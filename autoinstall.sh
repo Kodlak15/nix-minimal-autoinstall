@@ -1,6 +1,4 @@
-#!/usr/bin/env nix-shell
-#! nix-shell -i bash --pure
-#! nix-shell -I https://github.com/sgillespie/nixos-yubikey-luks/archive/master.tar.gz
+#!/usr/bin/env bash
 
 set -e
 
@@ -35,7 +33,8 @@ SALT_LENGTH=16
 SALT="$(dd if=/dev/random bs=1 count=$SALT_LENGTH 2>/dev/null | rbtohex)"
 
 # Read 2FA password
-read -p "Enter 2FA password: " -s USER_PASSPHRASE
+echo "Enter 2FA password:"
+read -s USER_PASSPHRASE
 
 # Create filesystems
 mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
