@@ -1,5 +1,5 @@
 {
-  description = "";
+  description = "My NixOS autoinstall script";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
