@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   username = "user";
   version = "24.05";
 in {
@@ -19,8 +23,8 @@ in {
         # Support for Yubikey PBA
         yubikeySupport = true;
 
-        devices."encrypted" = {
-          device = "/dev/disk/by-label/NIXOS"; # Be sure to update this to the correct volume
+        devices."nixos-crypt" = {
+          device = lib.mkDefault "/dev/disk/by-label/NIXOS"; # Be sure to update this to the correct volume
 
           yubikey = {
             slot = 2;
@@ -30,7 +34,7 @@ in {
             saltLength = 16; # Set to $SALT_LENGTH
 
             storage = {
-              device = "/dev/disk/by-label/EFI-NIXOS"; # Be sure to update this to the correct volume
+              device = lib.mkDefault "/dev/disk/by-label/EFI-NIXOS"; # Be sure to update this to the correct volume
               fsType = "vfat";
               path = "/crypt-storage/default";
             };

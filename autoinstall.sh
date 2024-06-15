@@ -48,7 +48,10 @@ LUKS_KEY="$(echo -n $USER_PASSPHRASE | pbkdf2-sha512 $(($KEY_LENGTH / 8)) $ITERA
 # Create the LUKS device
 CIPHER=aes-xts-plain64
 HASH=sha512
-echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
+echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --label "NIXOS" --cipher="$CIPHER" --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
+
+# Create the boot filesystem
+mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
 
 # Store the salt and iterations on the boot volume
 mount --mkdir "$boot" /boot
@@ -64,8 +67,7 @@ echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$root" nixos-crypt --key-file=-
 # Reassign root to /dev/mapper/nixos-crypt
 root="/dev/mapper/nixos-crypt"
 
-# Create filesystems
-mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
+# Create root filesytem 
 mkfs.btrfs -L "NIXOS" "$root" -f
 
 # Create subvolumes
@@ -91,8 +93,9 @@ nixos-generate-config --root "$mountpoint"
 # TODO there is probably a better way to handle this
 #
 # Replace the initial configuration with the minimal configuration
-url="https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstall/master/configuration.nix"
-config="$(curl "$url")"
+# url="https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstall/master/configuration.nix"
+# config="$(curl "$url")"
+config="$(cat ./configuration.nix)"
 echo "$config" > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
