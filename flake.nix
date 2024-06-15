@@ -20,9 +20,5 @@
       packages.default =
         pkgs.writeShellScriptBin "autoinstall.sh"
         (builtins.readFile ./autoinstall.sh);
-
-      postInstall = ''
-        cp ${configuration.default} $out/bin
-      '';
     });
 }

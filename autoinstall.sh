@@ -88,14 +88,20 @@ mount --mkdir "$boot" "$mountpoint/boot"
 # Generate the initial configuration
 nixos-generate-config --root "$mountpoint"
 
+# TODO there is probably a better way to handle this
+#
 # Replace the initial configuration with the minimal configuration
-# cat ./configuration.nix > "$mountpoint/etc/nixos/configuration.nix"
+url="https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstall/master/configuration.nix"
+"$(curl "$url")" > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
 nixos-install --root "$mountpoint"
 
 # Unmount all volumes
 umount -R "$mountpoint"
+
+# Close the LUKS partition
+cryptsetup luksClose "nixos-crypt"
 
 echo "NixOS was installed successfully!"
 echo "You may now reboot and begin building your system."
