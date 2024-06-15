@@ -10,7 +10,7 @@ if [[ ! "$EUID" -eq 0 ]]; then
 fi
 
 # Program the yubikey
-ykpersonalize -2 -ochal-resp -ochal-hmac
+# ykpersonalize -2 -ochal-resp -ochal-hmac
 
 # The name of the virtual disk to install on
 disk="/dev/vda"
@@ -55,7 +55,7 @@ HASH=sha512
 echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
 
 # Store the salt and iterations on the boot volume
-mount "$boot" /boot
+mount --mkdir "$boot" /boot
 mkdir -p /boot/crypt-storage
 echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
 umount /boot
