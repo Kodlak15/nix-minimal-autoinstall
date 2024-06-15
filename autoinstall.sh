@@ -64,6 +64,7 @@ umount /boot
 echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$root" nixos-crypt --key-file=-
 
 # TODO this is less than ideal
+#
 # Reassign root to /dev/mapper/nixos-crypt
 root="/dev/mapper/nixos-crypt"
 
