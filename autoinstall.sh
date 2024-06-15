@@ -36,10 +36,6 @@ SALT="$(dd if=/dev/random bs=1 count=$SALT_LENGTH 2>/dev/null | rbtohex)"
 echo "Enter 2FA password:"
 read -s USER_PASSPHRASE
 
-# Create filesystems
-mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
-mkfs.btrfs -L "NIXOS" "$root" -f
-
 # Calculate the initial challenge and response
 CHALLENGE="$(echo -n $SALT | openssl dgst -binary -sha512 | rbtohex)"
 RESPONSE=$(ykchalresp -2 -x $CHALLENGE 2>/dev/null)
@@ -67,6 +63,10 @@ echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$root" nixos-crypt --key-file=-
 #
 # Reassign root to /dev/mapper/nixos-crypt
 root="/dev/mapper/nixos-crypt"
+
+# Create filesystems
+mkfs.fat -F 32 -n "EFI-NIXOS" "$boot"
+mkfs.btrfs -L "NIXOS" "$root" -f
 
 # Create subvolumes
 mount --mkdir "$root" "$mountpoint"
