@@ -13,9 +13,16 @@
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
+      configuration = {
+        default = ./configuration.nix;
+      };
     in {
       packages.default =
         pkgs.writeShellScriptBin "autoinstall.sh"
         (builtins.readFile ./autoinstall.sh);
+
+      postInstall = ''
+        cp ${configuration.default} $out/bin
+      '';
     });
 }

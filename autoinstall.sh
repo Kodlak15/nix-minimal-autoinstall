@@ -89,7 +89,7 @@ mount --mkdir "$boot" "$mountpoint/boot"
 nixos-generate-config --root "$mountpoint"
 
 # Replace the initial configuration with the minimal configuration
-cat ./configuration.nix > "$mountpoint/etc/nixos/configuration.nix"
+# cat ./configuration.nix > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
 nixos-install --root "$mountpoint"
