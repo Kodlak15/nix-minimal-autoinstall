@@ -43,27 +43,22 @@ mkfs.btrfs -L "NIXOS" "$root" -f
 # Calculate the initial challenge and response
 CHALLENGE="$(echo -n $SALT | openssl dgst -binary -sha512 | rbtohex)"
 RESPONSE=$(ykchalresp -2 -x $CHALLENGE 2>/dev/null)
-echo "Challenge reponse calculated successfully"
 
 # Calculate the LUKS slot key
 KEY_LENGTH=512
 ITERATIONS=1000000
 LUKS_KEY="$(echo -n $USER_PASSPHRASE | pbkdf2-sha512 $(($KEY_LENGTH / 8)) $ITERATIONS $RESPONSE | rbtohex)"
-echo "LUKS key calculated successfully"
 
 # Create the LUKS device
 CIPHER=aes-xts-plain64
 HASH=sha512
-echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" \ 
-  --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
-echo "LUKS device created successfully"
+echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" --key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- "$root"
 
 # Store the salt and iterations on the boot volume
 mount "$boot" /boot
 mkdir -p /boot/crypt-storage
 echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
 umount /boot
-echo "Salt stored successfully"
 
 # Open the LUKS device
 echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$root" nixos-crypt --key-file=-
@@ -79,14 +74,12 @@ btrfs subvolume create "$mountpoint/@home"
 btrfs subvolume create "$mountpoint/@tmp"
 btrfs subvolume create "$mountpoint/@var"
 umount "$mountpoint"
-echo "Subvolumes created successfully"
 
 # Mount the subvolumes
 mount -o subvol="@" "$root" "$mountpoint"
 mount --mkdir -o subvol="@home" "$root" "$mountpoint/home"
 mount --mkdir -o subvol="@tmp" "$root" "$mountpoint/tmp"
 mount --mkdir -o subvol="@var" "$root" "$mountpoint/var"
-echo "Subvolumes mounted successfully"
 
 # Mount the boot partition
 mount --mkdir "$boot" "$mountpoint/boot"
