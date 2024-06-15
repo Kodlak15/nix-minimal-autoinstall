@@ -92,7 +92,8 @@ nixos-generate-config --root "$mountpoint"
 #
 # Replace the initial configuration with the minimal configuration
 url="https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstall/master/configuration.nix"
-"$(curl "$url")" > "$mountpoint/etc/nixos/configuration.nix"
+config="$(curl "$url")"
+echo "$config" > "$mountpoint/etc/nixos/configuration.nix"
 
 # Install the system
 nixos-install --root "$mountpoint"
