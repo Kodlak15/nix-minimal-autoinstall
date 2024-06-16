@@ -21,7 +21,7 @@ BOOTSIZE=512
 MOUNTPOINT="/mnt/nixos"
 
 # Slot to be used on the yubikey (set to 0 to skip programming)
-SLOT="0"
+SLOT="2"
 
 # Program the yubikey
 if [[ ! "$SLOT" == "0" ]]; then
