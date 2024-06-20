@@ -101,7 +101,8 @@ config="$(curl https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstal
 echo "$config" > "$MOUNTPOINT/etc/nixos/configuration.nix"
 
 # Install the system
-nixos-install --root "$MOUNTPOINT"
+FLAKE="github:Kodlak15/powder/example#example"
+nixos-install --root "$MOUNTPOINT" --flake "$FLAKE"
 
 # Unmount all volumes
 umount -R "$MOUNTPOINT"
