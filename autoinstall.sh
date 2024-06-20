@@ -9,6 +9,9 @@ if [[ ! "$EUID" -eq 0 ]]; then
 	exit 1
 fi
 
+# The flake to use
+FLAKE="github:Kodlak15/nixos-flake"
+
 # Disk to be used and its partitions
 DISK="/dev/vda"
 BOOTPART="/dev/vda1"
@@ -19,6 +22,9 @@ BOOTSIZE=512
 
 # Mountpoint used during installation
 MOUNTPOINT="/mnt/nixos"
+
+# The flake directory on the new system (during installation $MOUNTPOINT/$FLAKEDIR)
+FLAKEDIR="$MOUNTPOINT/nix/flakes/nixos"
 
 # Slot to be used on the yubikey (set to 0 to skip programming)
 SLOT="2"
@@ -94,15 +100,15 @@ mount -o umask=0077 --mkdir "$BOOTPART" "$MOUNTPOINT/boot"
 # Generate the initial configuration
 nixos-generate-config --root "$MOUNTPOINT"
 
-# TODO there is probably a better way to handle this
-#
-# Replace the initial configuration with the minimal configuration
-config="$(curl https://raw.githubusercontent.com/Kodlak15/nix-minimal-autoinstall/master/configuration.nix)"
-echo "$config" > "$MOUNTPOINT/etc/nixos/configuration.nix"
+# Clone the flake controlling the system configuration
+nix flake clone "$FLAKE" --dest "$FLAKEDIR"
+
+# ...
+# edit the flake to add new system config
+# ...
 
 # Install the system
-FLAKE="github:Kodlak15/powder/example#example"
-nixos-install --root "$MOUNTPOINT" --flake "$FLAKE"
+nixos-install --root "$MOUNTPOINT" --flake "$FLAKEDIR"
 
 # Unmount all volumes
 umount -R "$MOUNTPOINT"
