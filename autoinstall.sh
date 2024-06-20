@@ -12,6 +12,9 @@ fi
 # The flake to use
 FLAKE="github:Kodlak15/nixos-flake"
 
+# User who will manage the flake (flake will be cloned into their home folder)
+USER="user"
+
 # Disk to be used and its partitions
 DISK="/dev/vda"
 BOOTPART="/dev/vda1"
@@ -24,7 +27,10 @@ BOOTSIZE=512
 MOUNTPOINT="/mnt/nixos"
 
 # The flake directory on the new system (during installation $MOUNTPOINT/$FLAKEDIR)
-FLAKEDIR="$MOUNTPOINT/nix/flakes/nixos"
+FLAKEDIR="$MOUNTPOINT/home/$USER/nix/flakes/nixos"
+
+# The NixOS configuration to use
+NIXCFG="test-vm"
 
 # Slot to be used on the yubikey (set to 0 to skip programming)
 SLOT="2"
@@ -108,7 +114,7 @@ nix flake clone "$FLAKE" --dest "$FLAKEDIR"
 # ...
 
 # Install the system
-nixos-install --root "$MOUNTPOINT" --flake "$FLAKEDIR"
+nixos-install --root "$MOUNTPOINT" --flake "$FLAKEDIR#$NIXCFG"
 
 # Unmount all volumes
 umount -R "$MOUNTPOINT"
