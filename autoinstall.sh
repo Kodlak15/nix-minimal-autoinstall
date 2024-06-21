@@ -104,7 +104,7 @@ mount --mkdir -o subvol="@var" "$ROOT" "$MOUNTPOINT/var"
 mount -o umask=0077 --mkdir "$BOOTPART" "$MOUNTPOINT/boot"
 
 # Generate the initial configuration
-nixos-generate-config --root "$MOUNTPOINT"
+nixos-generate-config --root "$MOUNTPOINT" --no-filesystems
 
 # Clone the flake controlling the system configuration
 nix flake clone "$FLAKE" --dest "$FLAKEDIR"
