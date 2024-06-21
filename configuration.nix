@@ -63,6 +63,7 @@ in {
   environment.systemPackages = with pkgs; [
     neovim
     wget
+    neofetch
   ];
 
   programs.gnupg.agent = {
