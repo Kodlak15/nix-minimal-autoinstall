@@ -84,7 +84,7 @@ echo -n "$LUKS_KEY" | hextorb | cryptsetup open "$ROOTPART" nixos-crypt --key-fi
 ROOT="/dev/mapper/nixos-crypt"
 
 # Create the root filesytem 
-mkfs.btrfs -L "NIXOS" "$ROOT" -f
+mkfs.btrfs -L "ROOT" "$ROOT" -f
 
 # Create subvolumes
 mount --mkdir "$ROOT" "$MOUNTPOINT"
